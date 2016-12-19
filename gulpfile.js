@@ -3,10 +3,20 @@
  * EDITION-NODE-GULP
  * The gulp wrapper around patternlab-node core, providing tasks to interact with the core library and move supporting frontend assets.
 ******************************************************/
-var gulp = require('gulp'),
-  path = require('path'),
-  browserSync = require('browser-sync').create(),
-  argv = require('minimist')(process.argv.slice(2));
+var gulp        = require('gulp'),
+    path        = require('path'),
+    sass        = require('gulp-sass'),
+    browserSync = require('browser-sync').create(),
+    bump        = require('gulp-bump'),
+    git         = require('gulp-git'),
+    tag         = require('gulp-tag-version'),
+    push        = require('gulp-git-push'),
+    argv        = require('minimist')(process.argv.slice(2)),
+    yargs = require('yargs')
+      .option('type', {
+          alias: 't',
+          choices: ['patch', 'minor', 'major']
+      }).argv;
 
 function resolvePath(pathInput) {
   return path.resolve(pathInput).replace(/\\/g,"/");
@@ -42,6 +52,23 @@ gulp.task('pl-copy:font', function(){
 // CSS Copy
 gulp.task('pl-copy:css', function(){
   return gulp.src(resolvePath(paths().source.css) + '/*.css')
+    .pipe(gulp.dest(resolvePath(paths().public.css)))
+    .pipe(browserSync.stream());
+});
+
+gulp.task('pl-copy:bootstrap', function(){
+  return gulp.src(resolvePath(paths().source.bootstrap) + '/**/*.scss')
+    .pipe(gulp.dest(resolvePath(paths().source.scssVendor) + '/bootstrap'))
+    .pipe(browserSync.stream());
+});
+
+// Scss compiling
+gulp.task('pl-copy:scss', function(){
+  return gulp.src([
+    resolvePath(paths().source.scss) + '/**/*.scss',
+    '!source/assets/scss/_vendor/bootstrap/**/*'
+  ])
+    .pipe(sass().on('error', sass.logError))
     .pipe(gulp.dest(resolvePath(paths().public.css)))
     .pipe(browserSync.stream());
 });
@@ -89,7 +116,9 @@ gulp.task('pl-assets', gulp.series(
     'pl-copy:img',
     'pl-copy:favicon',
     'pl-copy:font',
+    'pl-copy:scss',
     'pl-copy:css',
+    'pl-copy:bootstrap',
     'pl-copy:styleguide',
     'pl-copy:styleguide-css'
   ),
@@ -204,6 +233,22 @@ gulp.task('patternlab:connect', gulp.series(function(done) {
     done();
   });
 }));
+
+
+gulp.task('release', gulp.series('patternlab:build', function() {
+  return gulp.src('./package.json')
+        .pipe(bump({
+            type: yargs.type || 'patch'
+        }))
+        .pipe(gulp.dest('./'))
+        .pipe(git.commit('bump version'))
+        .pipe(tag())
+        .pipe(push({
+            repository: 'origin',
+            refspec: 'HEAD'
+        }))
+}));
+
 
 /******************************************************
  * COMPOUND TASKS

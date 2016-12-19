@@ -8,10 +8,13 @@
       "annotations" : "./source/_annotations/",
       "styleguide" : "./node_modules/styleguidekit-assets-default/dist/",
       "patternlabFiles" : "./node_modules/styleguidekit-mustache-default/views/",
-      "js" : "./source/js",
-      "images" : "./source/images",
-      "fonts" : "./source/fonts",
-      "css" : "./source/css/"
+      "js" : "./source/assets/js",
+      "images" : "./source/assets/images",
+      "fonts" : "./source/assets/fonts",
+      "scss" : "./source/assets/scss",
+      "scssVendor": "./source/assets/scss/_vendor",
+      "css" : "./source/assets/css/",
+      "bootstrap": "./node_modules/bootstrap/scss/"
     },
     "public" : {
       "root" : "./public/",
@@ -19,10 +22,16 @@
       "data" : "./public/styleguide/data/",
       "annotations" : "./public/annotations/",
       "styleguide" : "./public/styleguide/",
-      "js" : "./public/js",
-      "images" : "./public/images",
-      "fonts" : "./public/fonts",
-      "css" : "./public/css"
+      "assets": "./public/assets/",
+      "js" : "./public/assets/js",
+      "images" : "./public/assets/images",
+      "fonts" : "./public/assets/fonts",
+      "css" : "./public/assets/css"
+    },
+    "release": {
+      "root": "./release/",
+      "assets": "./release/assets/",
+      "scss": "./release/assets/scss/"
     }
   },
   "styleGuideExcludes": [
